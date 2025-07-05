@@ -1,9 +1,30 @@
 import 'package:daily_readings/bible_reader.dart';
 import 'package:daily_readings/daily_readings_landing.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:daily_readings/services/graphql_client.dart';
+import 'package:daily_readings/config/environment.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize GraphQL client
+  await initGraphQLClient();
+  
   runApp(const MyApp());
+}
+
+Future<void> initGraphQLClient() async {
+  // Initialize the GraphQL client
+  GraphQLClientService.client;
+  
+  if (Environment.isLocalDevelopment) {
+    print('🚀 Running in LOCAL development mode');
+    print('📡 GraphQL endpoint: ${Environment.graphQLEndpoint}');
+  } else {
+    print('🌐 Running in PRODUCTION mode');
+    print('📡 GraphQL endpoint: ${Environment.graphQLEndpoint}');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -12,12 +33,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Daily Readings',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+    return GraphQLProvider(
+      client: ValueNotifier(GraphQLClientService.client),
+      child: MaterialApp(
+        title: 'Daily Readings',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        ),
+        home: const MyHomePage(),
       ),
-      home: const MyHomePage(),
     );
   }
 }
